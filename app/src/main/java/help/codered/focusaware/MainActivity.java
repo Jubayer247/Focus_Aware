@@ -57,12 +57,12 @@ public class MainActivity extends AppCompatActivity {
         btn_update_interval.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String newInterval=edit_text_interval.getText().toString();
-                edit_text_interval.setText(newInterval);
-                editor.putInt("interval",Integer.parseInt(newInterval));
+                int newInterval=Integer.parseInt(edit_text_interval.getText().toString());
+                edit_text_interval.setText(newInterval+"");
+                editor.putInt("interval",newInterval);
                 editor.commit();
             PeriodicWorkRequest saveRequest =
-                    new PeriodicWorkRequest.Builder(sheduleWork.class, 15, TimeUnit.MINUTES)
+                    new PeriodicWorkRequest.Builder(sheduleWork.class, newInterval, TimeUnit.MINUTES)
                             // Constraints
                             .build();
 

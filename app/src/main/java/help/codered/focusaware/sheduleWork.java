@@ -13,10 +13,13 @@ import androidx.work.WorkerParameters;
 import static help.codered.focusaware.MainActivity.r;
 
 public class sheduleWork extends Worker {
+
+    private Context context;
     public sheduleWork(
             @NonNull Context context,
             @NonNull WorkerParameters params) {
         super(context, params);
+        this.context=context;
     }
 
     @Override
