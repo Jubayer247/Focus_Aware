@@ -18,6 +18,7 @@
         android:foregroundGravity="center"
         android:gravity="center"
         android:inputType="number"
+        android:text="15"
         android:textAlignment="center"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/btn_save_interval"
@@ -66,4 +67,18 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_stop_alarm" />
+
+    <Button
+        android:id="@+id/btn_start_focus_aware"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="92dp"
+        android:layout_marginBottom="38dp"
+        android:backgroundTint="#827717"
+        android:text="Start Focus Aware"
+        app:layout_constraintBottom_toTopOf="@+id/edit_text_interval"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

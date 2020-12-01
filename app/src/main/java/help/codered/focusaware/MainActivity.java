@@ -5,6 +5,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import android.app.Notification;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.media.Ringtone;
@@ -24,10 +25,13 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import static android.app.PendingIntent.getActivity;
+
 public class MainActivity extends AppCompatActivity {
     Button btn_update_interval,
             btn_stop_alarm,
-            btn_check_autostart;
+            btn_check_autostart,
+            btn_start_focus_aware;
     EditText edit_text_interval;
     public static Uri notification;
     public static Ringtone r;
@@ -42,28 +46,22 @@ public class MainActivity extends AppCompatActivity {
         btn_update_interval=(Button)findViewById(R.id.btn_save_interval);
         btn_check_autostart=(Button)findViewById(R.id.btn_check_autostart);
         edit_text_interval=(EditText)findViewById(R.id.edit_text_interval);
-
+        btn_start_focus_aware=(Button)findViewById(R.id.btn_start_focus_aware);
         ////////////////////////////////////////////////////////////////////
 
         notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-        Editor editor= (Editor) getPreferences(MODE_PRIVATE).edit();
-        final int[] interval = {getPreferences(MODE_PRIVATE).getInt("interval", 0)};
-        if(interval[0] ==0){
-            editor.putInt("interval",15);
-            editor.commit();
-            WorkManager workManager=WorkManager.getInstance(this);
-            workManager.cancelAllWorkByTag(TAG);
-            PeriodicWorkRequest saveRequest =
-                    new PeriodicWorkRequest.Builder(sheduleWork.class, 15, TimeUnit.MINUTES)
-                            .addTag(TAG)
-                            .build();
+        //////////sharedpreferences creation with application context////////
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.uuid_for_worker), Context.MODE_PRIVATE);
+        Editor editor=sharedPref.edit();
+        //////////////sharedpreferences initial values//////////
 
-            WorkManager.getInstance(this).enqueue(saveRequest);
-        }
-        interval[0] =getPreferences(MODE_PRIVATE).getInt("interval",0);
+        int interval_from_sharedPref = sharedPref.getInt("interval", 15);
+        boolean is_focus_aware_running = sharedPref.getBoolean("is_focus_aware_running",false );
+
+
+        final int[] interval = {interval_from_sharedPref};
         edit_text_interval.setText(""+ interval[0]);
-
 
         btn_update_interval.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
                             .addTag(TAG)
                             .build();
                 WorkManager.getInstance(MainActivity.this).enqueue(saveRequest);
+                editor.putBoolean("is_focus_aware_running",true);
+                editor.commit();
             }
         });
 
@@ -97,6 +97,35 @@ public class MainActivity extends AppCompatActivity {
                 checkAutoStart(true);
             }
         });
+
+        btn_start_focus_aware.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean is_focus_aware_running = sharedPref.getBoolean("is_focus_aware_running", false);
+                int interval_from_shared_prefs = sharedPref.getInt("interval", 0);
+                if(is_focus_aware_running){
+                    WorkManager workManager=WorkManager.getInstance(MainActivity.this);
+                    workManager.cancelAllWorkByTag(TAG);
+                    editor.putBoolean("is_focus_aware_running",false);
+                    btn_check_autostart.setBackgroundColor(getResources().getColor(R.color.start_btn_inactive));
+                    btn_check_autostart.setText("Start Focus Aware");
+                }
+                else {
+                    WorkManager workManager=WorkManager.getInstance(MainActivity.this);
+                    workManager.cancelAllWorkByTag(TAG);
+                    PeriodicWorkRequest saveRequest =
+                            new PeriodicWorkRequest.Builder(sheduleWork.class, interval[0], TimeUnit.MINUTES)
+                                    .addTag(TAG)
+                                    .build();
+                    WorkManager.getInstance(MainActivity.this).enqueue(saveRequest);
+                    editor.putBoolean("is_focus_aware_running",true);
+                    editor.commit();
+                    btn_check_autostart.setBackgroundColor(getResources().getColor(R.color.start_btn_active));
+                    btn_check_autostart.setText("Stop Focus Aware");
+                }
+            }
+        });
+
         checkAutoStart(false);
     }
 
