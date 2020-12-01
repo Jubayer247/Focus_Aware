@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity {
     Button btn_update_interval,btn_stop_alarm;
     EditText edit_text_interval;
+    public static Uri notification;
+    public static Ringtone r;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,22 +31,24 @@ public class MainActivity extends AppCompatActivity {
         ////////////////////////////////////////////////////////////////////
         edit_text_interval=(EditText)findViewById(R.id.edit_text_interval);
 
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-        r.play();
+        notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+       // r.play();
 
-//        PeriodicWorkRequest saveRequest =
-//                new PeriodicWorkRequest.Builder(sheduleWork.class, 15, TimeUnit.MINUTES)
-//                        // Constraints
-//                        .build();
+
 //
-//        WorkManager.getInstance(this).enqueue(saveRequest);
-//
-        Editor editor= (Editor) getPreferences(MODE_PRIVATE);
+        Editor editor= (Editor) getPreferences(MODE_PRIVATE).edit();
         final int[] interval = {getPreferences(MODE_PRIVATE).getInt("interval", 0)};
         if(interval[0] ==0){
             editor.putInt("interval",15);
             editor.commit();
+            PeriodicWorkRequest saveRequest =
+                    new PeriodicWorkRequest.Builder(sheduleWork.class, 15, TimeUnit.MINUTES)
+                            // Constraints
+                            .build();
+
+            WorkManager.getInstance(this).enqueue(saveRequest);
+
         }
         interval[0] =getPreferences(MODE_PRIVATE).getInt("interval",0);
         edit_text_interval.setText(""+ interval[0]);
