@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         Intent ttsIntent = new Intent();
         ttsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
         startActivityForResult(ttsIntent, ACT_CHECK_TTS_DATA);
-
+        //ttsIntent.setPackage("my.tts.package");
 
     }
 
@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Toast.makeText(this, "TTS language is not supported", Toast.LENGTH_LONG).show();
                 } else {
-                    saySomething("TTS is ready", 0);
+                    //saySomething("TTS is ready", 0);
                 }
             }
         } else {
