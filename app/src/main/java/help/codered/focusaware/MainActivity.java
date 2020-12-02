@@ -1,12 +1,14 @@
 package help.codered.focusaware;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,9 +21,10 @@ import androidx.work.WorkManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.judemanutd.autostarter.AutoStartPermissionHelper;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
     Button btn_update_interval,
             btn_stop_alarm,
             btn_check_autostart,
@@ -34,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private int interval_from_sharedPref;
     private boolean is_focus_aware_running;
     WorkManager workManager;
+    TextToSpeech mTTS = null;
+    private final int ACT_CHECK_TTS_DATA = 1000;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,7 +184,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        // Check to see if we have TTS voice data
+        Intent ttsIntent = new Intent();
+        ttsIntent.setAction(TextToSpeech.Engine.ACTION
+                _CHECK_TTS_DATA);
+        startActivityForResult(ttsIntent, ACT_CHECK_TTS_DATA);
 
 
     }
@@ -237,5 +246,54 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         TAG=getString(R.string.uuid_for_worker);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mTTS != null) {
+            mTTS.stop();
+            mTTS.shutdown();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ACT_CHECK_TTS_DATA) {
+            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                // Data exists, so we instantiate the TTS engine
+                mTTS = new TextToSpeech(this, this);
+            } else {
+                // Data is missing, so we start the TTS
+                // installation process
+                Intent installIntent = new Intent();
+                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+            }
+        }
+    }
+
+    private void saySomething(String text, int qmode) {
+        if (qmode == 1)
+            mTTS.speak(text, TextToSpeech.QUEUE_ADD, null);
+        else
+            mTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+    }
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            if (mTTS != null) {
+                int result = mTTS.setLanguage(Locale.US);
+                if (result == TextToSpeech.LANG_MISSING_DATA ||
+                        result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Toast.makeText(this, "TTS language is not supported", Toast.LENGTH_LONG).show();
+                } else {
+                    saySomething("TTS is ready", 0);
+                }
+            }
+        } else {
+            Toast.makeText(this, "TTS initialization failed",
+                    Toast.LENGTH_LONG).show();
+        }
     }
 }
