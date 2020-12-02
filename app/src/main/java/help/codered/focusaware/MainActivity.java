@@ -1,10 +1,5 @@
 package help.codered.focusaware;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
-import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -12,20 +7,19 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
+import com.google.android.material.textfield.TextInputEditText;
 import com.judemanutd.autostarter.AutoStartPermissionHelper;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-
-import static android.app.PendingIntent.getActivity;
 
 public class MainActivity extends AppCompatActivity {
     Button btn_update_interval,
@@ -33,9 +27,13 @@ public class MainActivity extends AppCompatActivity {
             btn_check_autostart,
             btn_start_focus_aware;
     EditText edit_text_interval;
+    TextInputEditText edit_text_reminder;
     public static Uri notification;
     public static Ringtone r;
     private static String TAG;
+    private int interval_from_sharedPref;
+    private boolean is_focus_aware_running;
+    WorkManager workManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,8 +43,10 @@ public class MainActivity extends AppCompatActivity {
         btn_stop_alarm=(Button)findViewById(R.id.btn_stop_alarm);
         btn_update_interval=(Button)findViewById(R.id.btn_save_interval);
         btn_check_autostart=(Button)findViewById(R.id.btn_check_autostart);
-        edit_text_interval=(EditText)findViewById(R.id.edit_text_interval);
+        edit_text_interval=(EditText)findViewById(R.id.edit_text_interval_data);
         btn_start_focus_aware=(Button)findViewById(R.id.btn_start_focus_aware);
+        workManager=WorkManager.getInstance(MainActivity.this);
+        edit_text_reminder=(TextInputEditText) findViewById(R.id.edit_text_reminder);
         ////////////////////////////////////////////////////////////////////
 
         notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -56,12 +56,9 @@ public class MainActivity extends AppCompatActivity {
         Editor editor=sharedPref.edit();
         //////////////sharedpreferences initial values//////////
 
-        int interval_from_sharedPref = sharedPref.getInt("interval", 15);
-        boolean is_focus_aware_running = sharedPref.getBoolean("is_focus_aware_running",false );
-
-
-        final int[] interval = {interval_from_sharedPref};
-        edit_text_interval.setText(""+ interval[0]);
+        interval_from_sharedPref = sharedPref.getInt("interval", 15);
+        is_focus_aware_running = sharedPref.getBoolean("is_focus_aware_running",false );
+        edit_text_interval.setText(""+ interval_from_sharedPref);
 
         btn_update_interval.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
                 edit_text_interval.setText(newInterval+"");
                 editor.putInt("interval",newInterval);
                 editor.commit();
-                WorkManager workManager=WorkManager.getInstance(MainActivity.this);
                 workManager.cancelAllWorkByTag(TAG);
                 PeriodicWorkRequest saveRequest =
                     new PeriodicWorkRequest.Builder(sheduleWork.class, newInterval, TimeUnit.MINUTES)
@@ -102,32 +98,100 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 boolean is_focus_aware_running = sharedPref.getBoolean("is_focus_aware_running", false);
-                int interval_from_shared_prefs = sharedPref.getInt("interval", 0);
+                int interval_from_shared_prefs = sharedPref.getInt("interval", 15);
+                Toast.makeText(MainActivity.this,is_focus_aware_running+""+interval_from_shared_prefs,Toast.LENGTH_SHORT).show();
                 if(is_focus_aware_running){
-                    WorkManager workManager=WorkManager.getInstance(MainActivity.this);
                     workManager.cancelAllWorkByTag(TAG);
                     editor.putBoolean("is_focus_aware_running",false);
-                    btn_check_autostart.setBackgroundColor(getResources().getColor(R.color.start_btn_inactive));
-                    btn_check_autostart.setText("Start Focus Aware");
+                    editor.commit();
+                    btn_start_focus_aware.setBackgroundColor(getResources().getColor(R.color.start_btn_inactive));
+                    btn_start_focus_aware.setText("Start Focus Aware");
                 }
                 else {
-                    WorkManager workManager=WorkManager.getInstance(MainActivity.this);
                     workManager.cancelAllWorkByTag(TAG);
                     PeriodicWorkRequest saveRequest =
-                            new PeriodicWorkRequest.Builder(sheduleWork.class, interval[0], TimeUnit.MINUTES)
+                            new PeriodicWorkRequest.Builder(sheduleWork.class, interval_from_shared_prefs, TimeUnit.MINUTES)
                                     .addTag(TAG)
                                     .build();
                     WorkManager.getInstance(MainActivity.this).enqueue(saveRequest);
                     editor.putBoolean("is_focus_aware_running",true);
                     editor.commit();
-                    btn_check_autostart.setBackgroundColor(getResources().getColor(R.color.start_btn_active));
-                    btn_check_autostart.setText("Stop Focus Aware");
+                    btn_start_focus_aware.setBackgroundColor(getResources().getColor(R.color.start_btn_active));
+                    btn_start_focus_aware.setText("Stop Focus Aware");
                 }
+
+//                ListenableFuture<List<WorkInfo>> workerInfo=workManager.getWorkInfosByTag( TAG);
+//                Executor executor = new Executor() {
+//                    @Override
+//                    public void execute(Runnable command) {
+//                        editor.putBoolean("",false);
+//                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Toast.makeText(MainActivity.this,"Focus Aware, executor",Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//                    }
+//                };
+//                workerInfo.addListener(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            for (WorkInfo workinf:workerInfo.get()
+//                            ) {
+//                                if(workinf.getTags().contains(TAG)){
+//                                    if(workinf.getState().isFinished()){
+//                                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                Toast.makeText(MainActivity.this,"Focus Aware, finished",Toast.LENGTH_SHORT).show();
+//                                            }
+//                                        });
+//                                    }
+//                                }
+//                            }
+//                        } catch (ExecutionException e) {
+//                            e.printStackTrace();
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                },executor);
+
+            }
+        });
+        if(!is_focus_aware_running){
+            btn_start_focus_aware.setBackgroundColor(getResources().getColor(R.color.start_btn_inactive));
+            btn_start_focus_aware.setText("Start Focus Aware");
+        }else{
+            btn_start_focus_aware.setBackgroundColor(getResources().getColor(R.color.start_btn_active));
+            btn_start_focus_aware.setText("Stop Focus Aware");
+        }
+        checkAutoStart(false);
+        String val=sharedPref.getString("msg","");
+        edit_text_reminder.setText(val);
+        edit_text_reminder.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                String msg=edit_text_reminder.getText().toString();
+                editor.putString("msg",msg);
+                editor.commit();
             }
         });
 
-        checkAutoStart(false);
+
+
+
     }
+
+
+
+
+
+
+
+
+
 
 
     private void checkAutoStart(boolean force_check){

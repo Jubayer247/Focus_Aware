@@ -4,51 +4,66 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#BC736C6C"
+    android:padding="11dp"
     tools:context=".MainActivity">
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/edit_text_interval"
-        android:layout_width="wrap_content"
+        android:layout_width="363dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="94dp"
-        android:layout_marginTop="190dp"
-        android:layout_marginEnd="107dp"
-        android:layout_marginBottom="8dp"
-        android:ems="10"
+        android:layout_margin="7dp"
+        android:autofillHints="15"
+        android:background="#BEC3C1C1"
         android:foregroundGravity="center"
         android:gravity="center"
-        android:inputType="number"
-        android:text="15"
+        android:hint="@string/reminder_interval"
         android:textAlignment="center"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/btn_save_interval"
+        app:layout_constraintBottom_toTopOf="@+id/editTextTextMultiLine"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_start_focus_aware">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_interval_data"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="8dp"
+            android:foregroundGravity="center"
+            android:gravity="center"
+            android:textAlignment="center" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btn_save_interval"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_width="0dp"
+        android:layout_height="71dp"
+        android:layout_margin="7dp"
         android:backgroundTint="#0091EA"
-        android:text="UPDATE INTERVAL"
+        android:elevation="8dp"
+        android:fontFamily="@font/lato_bold"
+        android:text="@string/update_reminder_interval"
+        android:textSize="18sp"
+        app:cornerRadius="16dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_stop_alarm"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text_interval" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextMultiLine" />
 
     <Button
         android:id="@+id/btn_stop_alarm"
-        android:layout_width="165dp"
-        android:layout_height="46dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="342dp"
+        android:layout_width="0dp"
+        android:layout_height="71dp"
+        android:layout_margin="7dp"
         android:backgroundTint="#FB8C00"
-        android:text="STOP ALARM"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:elevation="8dp"
+        android:fontFamily="@font/lato_bold"
+        android:text="@string/stop_alarm"
+        android:textSize="18sp"
+        app:cornerRadius="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_check_autostart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,29 +71,62 @@
 
     <Button
         android:id="@+id/btn_check_autostart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp"
+        android:layout_width="0dp"
+        android:layout_height="71dp"
+        android:layout_margin="7dp"
+        android:layout_marginStart="12dp"
         android:backgroundTint="#7CB342"
-        android:text="check Autostart"
+        android:elevation="8dp"
+        android:fontFamily="@font/lato_bold"
+        android:text="@string/check_autostart"
+        android:textSize="18sp"
+        app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_stop_alarm" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_start_focus_aware"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="92dp"
-        android:layout_marginBottom="38dp"
+        android:layout_width="0dp"
+        android:layout_height="71dp"
+        android:layout_margin="7dp"
         android:backgroundTint="#827717"
-        android:text="Start Focus Aware"
+        android:elevation="8dp"
+        android:fontFamily="@font/lato_bold"
+        android:text="@string/start_focus_aware"
+        android:textSize="18sp"
+        app:cornerRadius="16dp"
         app:layout_constraintBottom_toTopOf="@+id/edit_text_interval"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/editTextTextMultiLine"
+        android:layout_width="363dp"
+        android:layout_height="97dp"
+        android:layout_margin="7dp"
+        android:background="#BEC3C1C1"
+        android:gravity="start|top"
+        android:hint="@string/specific_or_personalized_reminder_for_focus"
+        android:importantForAutofill="no"
+        app:layout_constraintBottom_toTopOf="@+id/btn_save_interval"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text_interval"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_reminder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:foregroundGravity="center"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:elevation="8dp" />
+    </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
