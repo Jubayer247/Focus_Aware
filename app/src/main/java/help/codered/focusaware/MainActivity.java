@@ -186,8 +186,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         // Check to see if we have TTS voice data
         Intent ttsIntent = new Intent();
-        ttsIntent.setAction(TextToSpeech.Engine.ACTION
-                _CHECK_TTS_DATA);
+        ttsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
         startActivityForResult(ttsIntent, ACT_CHECK_TTS_DATA);
 
 
