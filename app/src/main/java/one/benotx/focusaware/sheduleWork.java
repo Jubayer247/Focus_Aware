@@ -1,4 +1,4 @@
-package help.codered.focusaware;
+package one.benotx.focusaware;
 
 
 import android.content.Context;
@@ -18,8 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static help.codered.focusaware.MainActivity.r;
-import static help.codered.focusaware.R.string.uuid_for_worker;
+import static one.benotx.focusaware.MainActivity.r;
+import static one.benotx.focusaware.R.string.uuid_for_worker;
 
 public class sheduleWork extends Worker {
     private Context context;

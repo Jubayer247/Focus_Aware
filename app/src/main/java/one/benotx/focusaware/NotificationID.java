@@ -1,4 +1,4 @@
-package help.codered.focusaware;
+package one.benotx.focusaware;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NotificationID {

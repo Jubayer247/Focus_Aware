@@ -1,4 +1,4 @@
-package help.codered.focusaware;
+package one.benotx.focusaware;
 
 import android.content.Context;
 
